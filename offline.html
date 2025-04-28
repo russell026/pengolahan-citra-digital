@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline - Identifikasi Kesegaran Ikan</title>
+  <style>
+    :root {
+      --primary: #ffffff;
+      --bg: #010101;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: "Poppins", sans-serif;
+      background-color: var(--bg);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+      padding: 2rem;
+    }
+    
+    h1 {
+      color: var(--primary);
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    
+    p {
+      color: var(--primary);
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--primary);
+      background-color: transparent;
+      border: 2px solid var(--primary);
+      cursor: pointer;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      text-decoration: none;
+    }
+    
+    .btn:hover {
+      background-color: var(--primary);
+      color: var(--bg);
+    }
+  </style>
+</head>
+<body>
+  <h1>Anda Sedang Offline</h1>
+  <p>Silahkan periksa koneksi internet Anda dan coba lagi.</p>
+  <a href="/" class="btn">Coba Lagi</a>
+</body>
+</html>

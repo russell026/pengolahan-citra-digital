@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Identifikasi Kesegaran Ikan</title>
+
+    <!-- PWA meta tags -->
+    <meta name="description" content="Aplikasi untuk mengidentifikasi kesegaran ikan melalui gambar" />
+    <meta name="theme-color" content="#010101" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+
+    <!-- fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;300;400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- css -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="main-container">
+      <!-- Input section -->
+      <section class="hero" id="home">
+        <main class="content">
+          <h1>SILAHKAN INPUT GAMBAR</h1>
+          <div class="input-container">
+            <div class="input-box">
+              <label for="file-input" id="preview-label">+</label>
+              <input type="file" id="file-input" accept="image/*" capture="camera" />
+              <img
+                id="preview-image"
+                src=""
+                alt="Preview"
+                style="display: none"
+              />
+            </div>
+
+            <div class="buttons">
+              <button class="btn" id="classify-btn">Apakah Segar?</button>
+              <button class="btn" id="reset-btn">Reset</button>
+            </div>
+          </div>
+        </main>
+      </section>
+
+      <!-- Output Section -->
+      <aside class="output">
+        <h2>Hasil Klasifikasi</h2>
+        <table>
+          <tbody>
+            <tr>
+              <th>Label</th>
+              <td>-</td>
+            </tr>
+            <tr>
+              <th>Presentase</th>
+              <td>-</td>
+            </tr>
+            <tr>
+              <th>Deskripsi</th>
+              <td>-</td>
+            </tr>
+          </tbody>
+        </table>
+      </aside>
+    </div>
+
+    <!-- navbar -->
+    <nav class="navbar">
+      <a href="#" class="navbar-logo">Klasifikasi<span>Gambar</span>.</a>
+      <div class="navbar-nav">
+        <a href="#" id="about-us-btn">Tentang Kami</a>
+        <a href="#" id="install-btn" style="display: none;">Install Aplikasi</a>
+      </div>
+
+      <!-- Popup Modal -->
+      <div id="about-modal" class="modal">
+        <div class="modal-content">
+          <span class="close-btn">&times;</span>
+          <h2>Anggota Kelompok</h2>
+          <div class="team-grid">
+            <div class="team-card">
+              <h3>M.Gibran Alkatiri</h3>
+              <hr />
+              <p>Kontribusi: Mengembangkan frontend dan backend</p>
+            </div>
+            <div class="team-card">
+              <h3>Nama Anggota 2</h3>
+              <hr />
+              <p>
+                Kontribusi: Mendesain dan mengimplementasikan antarmuka
+                pengguna.
+              </p>
+            </div>
+            <div class="team-card">
+              <h3>Nama Anggota 3</h3>
+              <hr />
+              <p>
+                Kontribusi: Integrasi backend dan frontend untuk alur data yang
+                mulus.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- PWA install prompt -->
+    <div id="install-prompt" class="modal">
+      <div class="modal-content">
+        <span class="close-prompt-btn">&times;</span>
+        <h2>Install Aplikasi</h2>
+        <p>Install aplikasi ini di perangkat Anda untuk akses lebih cepat dan fitur offline!</p>
+        <button id="install-app-btn" class="btn">Install Sekarang</button>
+      </div>
+    </div>
+
+    <!-- Notification area -->
+    <div id="notification" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 5px; z-index: 1000;"></div>
+
+    <!-- javascript -->
+    <script src="script.js"></script>
+    <script>
+      // Register Service Worker
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('Service Worker registered: ', reg.scope))
+            .catch(err => console.log('Service Worker registration failed: ', err));
+        });
+      }
+
+      // PWA Install logic
+      let deferredPrompt;
+      const installBtn = document.getElementById('install-btn');
+      const installPrompt = document.getElementById('install-prompt');
+      const closePromptBtn = document.querySelector('.close-prompt-btn');
+      const installAppBtn = document.getElementById('install-app-btn');
+      const notification = document.getElementById('notification');
+
+      window.addEventListener('beforeinstallprompt', (e) => {
+        // Prevent Chrome 67 and earlier from automatically showing the prompt
+        e.preventDefault();
+        // Stash the event so it can be triggered later
+        deferredPrompt = e;
+        // Update UI to notify the user they can add to home screen
+        installBtn.style.display = 'inline-block';
+      });
+
+      installBtn.addEventListener('click', (e) => {
+        // Show the install prompt
+        installPrompt.style.display = 'block';
+      });
+
+      closePromptBtn.addEventListener('click', () => {
+        installPrompt.style.display = 'none';
+      });
+
+      installAppBtn.addEventListener('click', (e) => {
+        // Hide the app provided install promotion
+        installPrompt.style.display = 'none';
+        // Show the install prompt
+        deferredPrompt.prompt();
+        // Wait for the user to respond to the prompt
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            showNotification('Aplikasi sedang diinstall!');
+          } else {
+            showNotification('Instalasi dibatalkan');
+          }
+          deferredPrompt = null;
+        });
+      });
+
+      // Handle installed
+      window.addEventListener('appinstalled', (evt) => {
+        installBtn.style.display = 'none';
+        showNotification('Terima kasih telah menginstall aplikasi kami!');
+      });
+
+      // Show notification
+      function showNotification(message) {
+        notification.textContent = message;
+        notification.style.display = 'block';
+        setTimeout(() => {
+          notification.style.display = 'none';
+        }, 3000);
+      }
+
+      // Check if launched from installed app
+      if (window.matchMedia('(display-mode: standalone)').matches) {
+        document.body.classList.add('standalone');
+        // Hide install button if already installed
+        installBtn.style.display = 'none';
+      }
+    </script>
+  </body>
+</html>
